@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Serviço 1: Aplicação PHP (Laravel)
+  app:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    container_name: laravel_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - app-network
+
+  # Serviço 2: Servidor Web (Nginx)
+  nginx:
+    image: nginx:1.19-alpine
+    container_name: laravel_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80" # Acessaremos o projeto no navegador via http://localhost:8000
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  # Serviço 3: Banco de Dados (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_USER: ${DB_USERNAME:-user}
+    volumes:
+      - ./storage/docker/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  # Serviço 4: Ambiente Python para os Agentes de IA
+  python:
+    build:
+      context: .
+      dockerfile: .docker/python/Dockerfile
+    container_name: python_agents
+    working_dir: /app
+    volumes:
+      - ./:/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
