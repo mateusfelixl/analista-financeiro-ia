@@ -1,0 +1,23 @@
+[project]
+name = "equipe_de_analise_financeira_ia"
+version = "0.1.0"
+description = "equipe_de_analise_financeira_ia using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]>=0.203.0,<1.0.0"
+]
+
+[project.scripts]
+equipe_de_analise_financeira_ia = "equipe_de_analise_financeira_ia.main:run"
+run_crew = "equipe_de_analise_financeira_ia.main:run"
+train = "equipe_de_analise_financeira_ia.main:train"
+replay = "equipe_de_analise_financeira_ia.main:replay"
+test = "equipe_de_analise_financeira_ia.main:test"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"

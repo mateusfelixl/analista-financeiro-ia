@@ -1,0 +1,57 @@
+---
+coleta_de_dados_financeiros:
+  description: |-
+    Coletar dados financeiros completos e atualizados da empresa {empresa}, incluindo:
+    - Preço atual da ação e variação recente
+    - Indicadores fundamentalistas (P/L, P/VPA, ROE, ROA, margem líquida, etc.)
+    - Demonstrações financeiras mais recentes (receita, lucro, dívida)
+    - Histórico de dividendos
+    - Capitalização de mercado
+    - Volume de negociação
+    - Comparações com concorrentes do setor
+    Use Yahoo Finance e outras fontes confiáveis para obter as informações mais precisas e atualizadas.
+  expected_output: Relatório estruturado em formato markdown contendo todos os dados
+    financeiros relevantes da empresa {empresa}, com números atualizados, fontes citadas
+    e análise preliminar dos indicadores coletados.
+  agent: julia___analista_de_dados_financeiros
+analise_de_sentimento_de_mercado:
+  description: |-
+    Realizar uma análise abrangente do sentimento de mercado sobre a empresa {empresa}, incluindo:
+    - Notícias recentes sobre a empresa (últimos 30 dias)
+    - Análises de especialistas e casas de análise
+    - Relatórios de analistas com recomendações (compra/venda/neutro)
+    - Sentimento geral nas mídias sociais e fóruns especializados
+    - Eventos corporativos recentes que impactem a percepção
+    - Comparação com o sentimento do setor
+    Identifique tendências positivas, negativas e neutras, destacando os principais drivers de sentimento.
+  expected_output: Relatório detalhado em markdown sobre o sentimento de mercado da
+    empresa {empresa}, incluindo resumo executivo do sentimento predominante, principais
+    notícias e análises, e fatores que influenciam a percepção atual dos investidores.
+  agent: pedro___analista_de_sentimento_de_mercado
+redacao_do_artigo_final:
+  description: |-
+    Com base nos dados financeiros coletados e na análise de sentimento de mercado, redigir um artigo jornalístico completo sobre a empresa {empresa} que inclua:
+
+    **Estrutura do artigo:**
+    1. Título chamativo e informativo
+    2. Lead com resumo executivo da recomendação
+    3. Análise fundamentalista baseada nos dados financeiros
+    4. Contexto de mercado e sentimento atual
+    5. Riscos e oportunidades identificados
+    6. Recomendação final fundamentada (compra/venda/neutro)
+    7. Disclaimer sobre riscos de investimento
+
+    **Critérios de qualidade:**
+    - Linguagem clara e acessível para investidores iniciantes e experientes
+    - Dados precisos com fontes citadas
+    - Análise imparcial e fundamentada
+    - Recomendação baseada em evidências
+    - Estrutura jornalística profissional
+  expected_output: Artigo jornalístico completo em formato markdown, pronto para revisão
+    humana, contendo análise fundamentada da empresa {empresa} com recomendação de
+    investimento clara e bem justificada, incluindo título, corpo do texto e disclaimer
+    de riscos.
+  agent: key___jornalista_financeiro_senior
+  context:
+  - coleta_de_dados_financeiros
+  - analise_de_sentimento_de_mercado
