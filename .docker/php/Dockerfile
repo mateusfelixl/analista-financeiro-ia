@@ -23,6 +23,11 @@ RUN docker-php-ext-install gd
 # Instala o Composer (gerenciador de pacotes do PHP)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Instalar Node.js e NPM
+RUN apt-get update && apt-get install -y gnupg curl \
+    && curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get install -y nodejs
+
 # Define o diretório de trabalho
 WORKDIR /var/www
 
