@@ -1,0 +1,14 @@
+# backend/requirements.txt
+
+fastapi
+uvicorn
+python-dotenv
+crewai-tools
+langchain-litellm
+google-generativeai
+
+# CORREÇÃO: Instala o CrewAI com os pacotes extras do Google
+crewai[google-genai] 
+
+# Dependências que o Google pode precisar (se já não estiverem)
+langchain-google-genai

@@ -1,4 +1,0 @@
-crewai
-yfinance
-pygooglenews
-python-dotenv

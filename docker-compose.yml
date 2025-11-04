@@ -11,6 +11,8 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
     networks:
       - app-network
 
@@ -53,10 +55,16 @@ services:
       dockerfile: .docker/python/Dockerfile
     container_name: python_agents
     working_dir: /app
-    volumes:
-      - ./:/app
+   #.. volumes: ..#
+     #.. - ./:/app ..#
+    
+    env_file:  
+      - .env
+    # O bloco 'environment:' foi removido pois 'env_file' já faz todo o trabalho.
     networks:
       - app-network
+    ports:
+      - "8001:8000" # Mapeia a porta 8000 do container para 8001 no seu PC
 
 networks:
   app-network:

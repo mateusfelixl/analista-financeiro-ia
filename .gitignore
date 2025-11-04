@@ -17,3 +17,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# Ignorar arquivos de dados do banco de dados local
+/storage/docker/mysql
