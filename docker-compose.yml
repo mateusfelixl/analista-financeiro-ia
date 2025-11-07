@@ -13,6 +13,13 @@ services:
       - ./:/var/www
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
+    # O 'app' (Cliente) lê o .env (Isto está CORRETO)
+    env_file:  
+      - .env
+    # Adicionado 'depends_on' para esperar o 'db'
+    depends_on:
+      - db
+      - python
     networks:
       - app-network
 
@@ -22,7 +29,7 @@ services:
     container_name: laravel_nginx
     restart: unless-stopped
     ports:
-      - "8000:80" # Acessaremos o projeto no navegador via http://localhost:8000
+      - "8000:80"
     volumes:
       - ./:/var/www
       - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
@@ -37,12 +44,19 @@ services:
     container_name: laravel_db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-root}
-      MYSQL_USER: ${DB_USERNAME:-user}
+      # Estas linhas AGORA vão funcionar, porque o 'env_file' abaixo as definirá
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Use a senha do .env
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    
+    # --- A "BALA DE PRATA" (A LINHA QUE FALTAVA) ---
+    # Diz ao 'db' (Servidor) para ler o .env também
+    env_file:
+      - .env
+    
     volumes:
-      - ./storage/docker/mysql:/var/lib/mysql
+      - db-data:/var/lib/mysql # Volume isolado (CORRETO)
     ports:
       - "3306:3306"
     networks:
@@ -55,16 +69,17 @@ services:
       dockerfile: .docker/python/Dockerfile
     container_name: python_agents
     working_dir: /app
-   #.. volumes: ..#
-     #.. - ./:/app ..#
-    
     env_file:  
       - .env
-    # O bloco 'environment:' foi removido pois 'env_file' já faz todo o trabalho.
     networks:
       - app-network
     ports:
-      - "8001:8000" # Mapeia a porta 8000 do container para 8001 no seu PC
+      - "8001:8000"
+
+# Define o volume isolado para o banco
+volumes:
+  db-data:
+    driver: local
 
 networks:
   app-network:

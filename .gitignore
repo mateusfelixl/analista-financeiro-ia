@@ -19,3 +19,5 @@ yarn-error.log
 /.vscode
 # Ignorar arquivos de dados do banco de dados local
 /storage/docker/mysql
+/.env
+db-data/
