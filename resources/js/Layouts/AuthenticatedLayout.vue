@@ -33,8 +33,15 @@ const showingNavigationDropdown = ref(false);
                                     Dashboard
                                 </NavLink>
                                 <NavLink :href="route('analysis.index')" :active="route().current('analysis.index')">
-    Análise
-</NavLink>
+                                    Análise
+                                </NavLink>
+
+                                <!-- ===== A MELHORIA 1 (DESKTOP) FOI ADICIONADA AQUI ===== -->
+                                <NavLink :href="route('reports.index')" :active="route().current('reports.index')">
+                                    Painel de Curadoria
+                                </NavLink>
+                                <!-- ======================================================= -->
+
                             </div>
                         </div>
 
@@ -118,6 +125,16 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
+                        
+                        <!-- ===== A MELHORIA 1 (CELULAR) FOI ADICIONADA AQUI ===== -->
+                        <ResponsiveNavLink :href="route('analysis.index')" :active="route().current('analysis.index')">
+                            Análise
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('reports.index')" :active="route().current('reports.index')">
+                            Painel de Curadoria
+                        </ResponsiveNavLink>
+                        <!-- ===================================================== -->
+
                     </div>
 
                     <!-- Responsive Settings Options -->

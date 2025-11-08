@@ -1,5 +1,9 @@
+// Importa o tema padrão do Tailwind
 import defaultTheme from 'tailwindcss/defaultTheme';
+// Importa o plugin de formulários (que o Laravel usa)
 import forms from '@tailwindcss/forms';
+// ---  Importa o plugin de "tipografia"  ---
+import typography from '@tailwindcss/typography';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -18,5 +22,8 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        typography 
+    ],
 };

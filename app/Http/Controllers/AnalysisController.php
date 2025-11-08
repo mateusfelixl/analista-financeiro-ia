@@ -16,7 +16,6 @@ class AnalysisController extends Controller
     public function index()
     {
         // Usa o Inertia para renderizar o componente Vue 'Analysis/Index'
-        // (resources/js/Pages/Analysis/Index.vue)
         return Inertia::render('Analysis/Index');
     }
 
@@ -25,7 +24,7 @@ class AnalysisController extends Controller
      */
     public function store(Request $request)
     {
-        // Valida se o ticker foi enviado (opcional, mas boa prática)
+        // Valida se o ticker foi enviado
         $request->validate([
             'ticker' => 'required|string|max:10',
         ]);
@@ -34,38 +33,43 @@ class AnalysisController extends Controller
 
         try {
             // 2. CHAMA A API DO PYTHON
-            // Faz a requisição HTTP para o nome do serviço 'python'
-            // na porta interna 8000 (exatamente como o nosso teste 'curl' vitorioso)
-            $response = Http::timeout(300) // 5 minutos de paciência
+            $response = Http::timeout(300) 
                 ->post('http://python:8000/analyze-stock', [
                     'stock_symbol' => $ticker,
                 ]);
 
-            // 3. Pega a resposta
             $data = $response->json();
 
-            // 4. Se a API do Python deu um erro (ex: 500, 429)
             if ($response->failed()) {
-                // Tenta pegar a mensagem de erro da API, senão mostra uma genérica
                 $errorMessage = $data['detail']['message'] ?? $data['detail'] ?? 'Erro desconhecido no backend Python.';
                 throw new Exception($errorMessage);
             }
 
-            // 5. SALVE O RELATÓRIO NO BANCO DE DADOS
-            // (Isso só funciona se a tabela 'reports' existir!)
+            // --- 5. LIMPAR A "SUJEIRA" DA IA (A MELHORIA 2) ---
+            $raw_report = $data['message']; // Pega o rascunho bruto (com "Thought:...")
+            
+            // Procura pelo início do relatório real, que começa com "# Relatório"
+            $clean_report = strstr($raw_report, '# Relatório'); 
+
+            // Se (por algum motivo) não encontrar o início, usa o texto bruto
+            // para não salvar um rascunho vazio no banco.
+            if ($clean_report === false) {
+                $clean_report = $raw_report;
+            }
+            // --- FIM DA LIMPEZA ---
+
+
+            // 6. SALVE O RELATÓRIO "LIMPO" NO BANCO DE DADOS
             $report = Report::create([
                 'ticker' => $ticker,
-                'report_draft_ai' => $data['message'], // Salva o rascunho da IA
-                'status' => 'pending_review' // Define o status inicial
+                'report_draft_ai' => $clean_report, // Salva o rascunho LIMPO
+                'status' => 'pending_review' 
             ]);
             
-            // 6. PASSE O RASCUNHO PARA A VIEW
+            // 7. PASSE O RASCUNHO LIMPO PARA A VIEW
             $resultado = $report->report_draft_ai;
 
         } catch (Exception $e) {
-            // 7. TRATAMENTO DE ERRO LIMPO
-            // Se qualquer coisa no 'try' falhar (API, Banco de Dados),
-            // captura a mensagem e a envia para o frontend.
             $resultado = "ERRO AO EXECUTAR A ANÁLISE: " . $e->getMessage();
         } 
 

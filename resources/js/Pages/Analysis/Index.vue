@@ -3,8 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-// Isso define as propriedades que o Controller pode nos enviar
-// (Lembra do '$resultado'?)
+// Define as propriedades que o Controller pode nos enviar
 defineProps({
     resultado: {
         type: String,
@@ -12,17 +11,14 @@ defineProps({
     },
 });
 
-// Isso cria o nosso formulário
+// Cria o formulário
 const form = useForm({
-    ticker: '', // O campo para o nome da ação
+    ticker: '',
 });
 
-// Esta função será chamada quando o formulário for enviado
+// Função de envio
 const submit = () => {
-    // Envia o formulário para a rota 'analysis.store' (o método POST)
-    form.post(route('analysis.store'), {
-        // Não faz nada quando terminar (apenas recarrega a página com o resultado)
-    });
+    form.post(route('analysis.store'));
 };
 </script>
 
@@ -58,9 +54,20 @@ const submit = () => {
                             </PrimaryButton>
                         </form>
 
+                        <!-- 
+                            O ERRO ESTAVA AQUI:
+                            'vVite-if' (ERRADO) foi corrigido para 'v-if' (CORRETO).
+                        -->
                         <div v-if="resultado" class="mt-6 p-4 bg-gray-100 rounded-md">
                             <h3 class="font-semibold">Resultado da Análise:</h3>
-                            <pre class="mt-2 text-sm text-gray-700">{{ resultado }}</pre>
+                            
+                            <!-- 
+                                A CORREÇÃO DO TEXTO CORTADO ESTÁ AQUI:
+                                1. Tag <div>
+                                2. Classe 'whitespace-pre-wrap' (para quebrar a linha)
+                            -->
+                            <div class="mt-2 text-sm text-gray-700 whitespace-pre-wrap">{{ resultado }}</div>
+                        
                         </div>
 
                     </div>
