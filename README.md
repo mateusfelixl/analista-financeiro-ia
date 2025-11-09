@@ -67,6 +67,7 @@ O cérebro da IA é composto por três agentes especializados que colaboram para
 |  | SerperDevTool | Ferramenta de busca para os agentes |
 | Infraestrutura | Docker & Docker Compose | Ambiente de desenvolvimento e microsserviços |
 | Banco de Dados | MySQL | Armazenamento dos relatórios e usuários |
+
 🔄 Como Usar a Aplicação (Fluxos de Usuário)
 Existem dois fluxos principais na plataforma: o do Admin (Fator Humano) e o do Visitante.
 1. Fluxo do Admin (Curadoria)
@@ -82,6 +83,7 @@ Existem dois fluxos principais na plataforma: o do Admin (Fator Humano) e o do V
  * Navegar: Clique no link "Relatórios" no menu superior.
  * Visualizar: O visitante verá uma lista de todos os relatórios que foram aprovados pelo Fator Humano.
  * Ler: Clicando em um relatório, ele pode ler a análise completa, renderizada de forma limpa e profissional.
+
 ⚙️ Como Executar Localmente (Instalação)
  * Clonar o repositório:
    git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
