@@ -5,13 +5,13 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copia o arquivo de dependências (COM CAMINHO CORRIGIDO)
-COPY backend/requirements.txt .
+COPY requirements.txt .
 
 # Instala as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o restante do código (COM CAMINHO CORRIGIDO)
-COPY backend/ .
+COPY . .
 
 # Expõe a porta que a API do FastAPI vai usar
 EXPOSE 8000
