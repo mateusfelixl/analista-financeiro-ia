@@ -6,12 +6,33 @@ Um sistema de análise de ações com curadoria humana, orquestrado por um time 
 
 -----
 
-## 🎯 Principais Funcionalidades
+## 🎯 Visão Geral do Projeto
 
-  * **🤖 IA Multi-Agente Autônoma:** Três agentes especializados (Dados, Sentimento e Editorial) colaboram para gerar relatórios financeiros completos.
-  * **🛡️ Validação Rigorosa:** O backend Python utiliza **Pydantic** para garantir a integridade dos dados antes mesmo de acionar a IA.
-  * **🧑‍⚖️ Fluxo de Curadoria Humana (Human-in-the-loop):** Nenhum conteúdo vai ao ar sem aprovação. O humano atua como Editor-Chefe final.
-  * **🌎 Portal Público:** Interface limpa para visitantes consumirem apenas conteúdos verificados.
+O objetivo é democratizar análises financeiras de alta qualidade. Diferente de bots comuns, este sistema implementa o conceito de **Human-in-the-loop**: a IA faz o trabalho pesado de coleta e redação, mas um humano (você) tem a palavra final antes da publicação.
+
+### Funcionalidades Principais
+* **🤖 Coleta Autônoma:** Agentes de IA varrem a web em busca de dados financeiros e notícias.
+* **⚖️ Painel de Curadoria:** Interface administrativa para revisar, editar e aprovar os relatórios gerados.
+* **🌎 Portal de Investidores:** Área pública onde visitantes podem ler apenas as análises auditadas e aprovadas.
+
+-----
+
+## 🖥️ Fluxos de Uso da Aplicação (Laravel)
+
+A aplicação principal é construída em **Laravel + Inertia.js**, oferecendo uma experiência de App Nativo (SPA).
+
+### 1. Fluxo do Analista (Admin)
+1.  **Login Seguro:** Acesso restrito via autenticação Laravel.
+2.  **Solicitação de Análise:** O usuário digita o ticker (ex: `PETR4`, `AAPL`) no Dashboard.
+3.  **Processamento:** O Laravel aciona o microsserviço Python e aguarda a resposta.
+4.  **Revisão (Curadoria):** O relatório gerado entra como "Rascunho". O analista pode:
+    * Editar o texto (Markdown).
+    * Corrigir dados.
+    * **Aprovar e Publicar**.
+
+### 2. Fluxo do Visitante (Público)
+1.  **Navegação:** Acesso à lista de relatórios públicos.
+2.  **Leitura:** Visualização de relatórios com formatação profissional, gráficos (se houver) e indicadores, **somente dos itens aprovados**.
 
 -----
 
@@ -20,83 +41,67 @@ Um sistema de análise de ações com curadoria humana, orquestrado por um time 
 O sistema segue o padrão de **Service-Oriented Architecture (SOA)**. O frontend não acessa a IA diretamente; eles conversam via API interna isolada na rede Docker.
 
 ### 1. Core Application (Laravel 10)
-  * **Responsabilidade:** Gestão de usuários, banco de dados, painel administrativo e renderização frontend (Inertia.js + Vue 3).
-  * **Segurança:** Middleware de autenticação e proteção de rotas.
+* **Responsabilidade:** Gestão de usuários, banco de dados MySQL, regras de negócio (aprovação/rejeição) e renderização frontend (Vue 3).
+* **Tecnologias:** Laravel Breeze (Auth), Eloquent ORM, Inertia.js.
 
 ### 2. AI Intelligence Service (Python FastAPI)
-  * **Responsabilidade:** Motor de processamento isolado.
-  * **Estrutura:**
-      * `main.py`: Gateway da API.
-      * `schemas.py`: Contratos de dados (Data Contracts).
-      * `crew_service.py`: Lógica de negócios e orquestração dos agentes.
-  * **Tecnologia:** CrewAI + LiteLLM + Google Gemini.
+* **Responsabilidade:** Motor de processamento isolado que roda os agentes.
+* **Estrutura:**
+    * `main.py`: Gateway da API.
+    * `schemas.py`: Validação rigorosa de dados com Pydantic.
+    * `crew_service.py`: Orquestração dos agentes CrewAI.
+* **Tecnologias:** CrewAI, LiteLLM, Google Gemini Pro.
 
 ### 🗣️ Protocolo de Comunicação
 
-O Laravel envia requisições para o serviço Python, que processa em background threads para otimizar o tempo de resposta.
+O Laravel envia requisições HTTP para o container Python:
 
 **Rota:** `POST http://python:8000/analyze-stock`
 
 ```php
-// Exemplo de implementação no AnalysisController.php
+// Exemplo no Laravel (AnalysisController.php)
 $response = Http::timeout(300)->post('http://python:8000/analyze-stock', [
-    'symbol' => $ticker // Ex: 'AAPL'
+    'symbol' => $ticker // Ex: 'NVDA'
 ]);
 
 🤖 O Time de Agentes (CrewAI)
-O "cérebro" é composto por personas técnicas que utilizam ferramentas de busca (SerperDevTool) em tempo real:
- * 🕵️‍♀️ Júlia (Lead Data Analyst): Especialista em Hard Data. Busca indicadores (P/L, ROE, Cotação) ignorando ruídos.
- * 🧠 Pedro (Sentiment Specialist): Especialista em Behavioral Finance. Analisa o tom das notícias (Medo vs. Ganância).
- * ✍️ Key (Financial Editor): Sintetiza as informações técnicas e comportamentais em um relatório acionável em Markdown.
+O "cérebro" é composto por três personas técnicas:
+ * 🕵️‍♀️ Júlia (Lead Data Analyst): Focada em Hard Data. Busca P/L, ROE, Cotação e Dividendos no Google.
+ * 🧠 Pedro (Sentiment Specialist): Focado em Behavioral Finance. Lê notícias e define se o mercado está com "Medo" ou "Ganância".
+ * ✍️ Key (Financial Editor): Editor-Chefe. Recebe os dados dos outros dois e escreve o artigo final em Markdown, já sugerindo a recomendação (Compra/Venda).
 
 🚀 Tech Stack
 
 | Categoria | Tecnologia | Detalhe Técnico |
 |---|---|---|
-| Backend Core | Laravel 10 | PHP 8.2+, Eloquent ORM |
-| Frontend | Vue.js 3 + Inertia | Single Page Application (SPA) |
-| AI Service | Python 3.11 | FastAPI, Pydantic |
-| AI Framework | CrewAI | Orquestração de Agentes Autônomos |
-| LLM Engine | Google Gemini | Modelo gemini-flash via LiteLLM |
-| Infraestrutura | Docker Compose | Orquestração de containers e redes internas |
+| Backend Core | Laravel 10 | PHP 8.2+, Eloquent, Http Client |
+| Frontend | Vue.js 3 | Composition API, Inertia.js |
+| Estilização | TailwindCSS | Design responsivo e Tipografia |
+| Microsserviço IA | Python 3.11 | FastAPI, Uvicorn |
+| IA Engine | Google Gemini | Modelo gemini-flash via LiteLLM |
+| Infraestrutura | Docker Compose | Redes internas, Volumes e Builds |
 
 ⚙️ Instalação e Execução
-Siga estes passos para levantar o ambiente completo via Docker.
-
 1. Configuração Inicial
-# Clone o repositório
 git clone [https://github.com/seu-usuario/analista-financeiro-ia.git](https://github.com/seu-usuario/analista-financeiro-ia.git)
 cd analista-financeiro-ia
-
-# Configure as variáveis de ambiente
 cp .env.example .env
 
-Atenção: No arquivo .env, configure suas chaves:
- * GOOGLE_API_KEY (Para o Gemini)
- * SERPER_API_KEY (Para as buscas no Google)
-2. Build e Deploy Local
-Como utilizamos microsserviços, o Docker Compose gerencia tudo (banco, redis, python, php).
-# Constrói as imagens e sobe os containers
+Configure no .env: GOOGLE_API_KEY e SERPER_API_KEY.
+2. Build e Deploy (Docker)
 docker-compose up -d --build
 
-3. Instalação de Dependências (Primeira vez)
-Execute estes comandos para configurar o Laravel dentro do container:
-# Instalar pacotes PHP e Node
+3. Instalação de Dependências
+# Instalar dependências do Laravel e Vue
 docker-compose exec laravel_app composer install
 docker-compose exec laravel_app npm install
 docker-compose exec laravel_app npm run build
 
-# Rodar migrações do banco
+# Criar tabelas no banco
 docker-compose exec laravel_app php artisan migrate
 
 4. Acesso
- * Painel Principal: http://localhost:8000
- * API Docs (Swagger): http://localhost:8001/docs
-<!-- end list -->
+ * Aplicação: http://localhost:8000
+ * API Docs: http://localhost:8001/docs
 
-docker-compose exec laravel_app php artisan migrate
 
-4. Acesso
-Painel Principal: http://localhost:8000
-
-API Docs (Swagger): http://localhost:8001/docs
