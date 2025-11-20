@@ -20,4 +20,4 @@ yarn-error.log
 # Ignorar arquivos de dados do banco de dados local
 /storage/docker/mysql
 /.env
-db-data/
+db-data/_pycache_/
