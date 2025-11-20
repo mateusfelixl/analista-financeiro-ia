@@ -44,13 +44,12 @@ services:
     container_name: laravel_db
     restart: unless-stopped
     environment:
-      # Estas linhas AGORA vão funcionar, porque o 'env_file' abaixo as definirá
+
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Use a senha do .env
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_USER: ${DB_USERNAME}
     
-    # --- A "BALA DE PRATA" (A LINHA QUE FALTAVA) ---
     # Diz ao 'db' (Servidor) para ler o .env também
     env_file:
       - .env
@@ -71,6 +70,8 @@ services:
     working_dir: /app
     env_file: 
       - .env
+    volumes:
+      - ./backend:/app
     networks:
       - app-network
     ports:

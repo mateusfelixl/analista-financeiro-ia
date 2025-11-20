@@ -34,18 +34,29 @@ class AnalysisController extends Controller
         try {
             // 2. CHAMA A API DO PYTHON
             $response = Http::timeout(300) 
-                ->post('http://python:8000/analyze-stock', [
-                    'stock_symbol' => $ticker,
+                 ->post('http://python:8000/analyze-stock', [
+                    'symbol' => $ticker, 
                 ]);
 
             $data = $response->json();
 
             if ($response->failed()) {
-                $errorMessage = $data['detail']['message'] ?? $data['detail'] ?? 'Erro desconhecido no backend Python.';
+                $errorMessage = $data['detail']['message'] ?? null;
+
+                if (!$errorMessage) {
+                    $detail = $data['detail'] ?? 'Erro desconhecido';
+                    
+                    if (is_array($detail)) {
+                        $errorMessage = json_encode($detail, JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $errorMessage = (string) $detail;
+                    }
+                }
+
                 throw new Exception($errorMessage);
             }
 
-            // --- 5. LIMPAR A "SUJEIRA" DA IA (A MELHORIA 2) ---
+            // --- 5. LIMPAR A "SUJEIRA" DA IA  ---
             $raw_report = $data['message']; // Pega o rascunho bruto (com "Thought:...")
             
             // Procura pelo início do relatório real, que começa com "# Relatório"

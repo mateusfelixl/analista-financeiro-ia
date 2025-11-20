@@ -1,54 +1,48 @@
-# --- main.py (A Nova Versão) ---
+import time
 import uvicorn
 import traceback
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from starlette.concurrency import run_in_threadpool
 
-# Importações locais dos nossos novos arquivos
-from models import StockAnalysisRequest, AnalysisResponse
-from rate_limiter import check_rate_limit
-from crew_service import crew_service # Importa a INSTÂNCIA ÚNICA
+# Imports
+from config import Config
+from schemas import StockAnalysisRequest, StockAnalysisResponse
+from crew_service import FinancialAnalysisService
 
-app = FastAPI()
+app = FastAPI(title="Stock AI Worker")
 
-@app.get("/")
-def read_root():
-    return {"message": "Servidor 'Cérebro' (Python/FastAPI) está online.", "version": "3.0.0-refactored"}
+@app.on_event("startup")
+def startup_event():
+    Config.validate()
 
-@app.post("/analyze-stock", response_model=AnalysisResponse)
-async def analyze_stock(
-    # 1. Valida o body da requisição usando o Pydantic Model
-    request_data: StockAnalysisRequest,
-    
-    # 2. Executa o rate limiter. Se falhar, nem entra na função.
-    _ = Depends(check_rate_limit) 
-):
-    
-    if crew_service is None:
-        raise HTTPException(status_code=500, detail="ERRO CRÍTICO: O serviço de IA falhou ao inicializar. Verifique os logs e as API Keys.")
-        
+
+@app.post("/analyze-stock", response_model=StockAnalysisResponse)
+async def analyze_stock(payload: StockAnalysisRequest):
     try:
-        print(f"\n--- REQUISIÇÃO RECEBIDA: Analisando {request_data.stock_symbol} ---")
+        service = FinancialAnalysisService()
         
-        # --- 3. Roda a função síncrona (pesada) do crew em uma threadpool ---
-        result_data = await run_in_threadpool(
-            crew_service.run_analysis, 
-            request_data.stock_symbol
+        print(f"--> Recebida solicitação para analisar: {payload.symbol}")
+        
+        # Executa a IA (pode demorar 30-60s)
+        result = await run_in_threadpool(service.execute_analysis, payload.symbol)
+        
+        print("<-- Análise concluída com sucesso.")
+
+        return StockAnalysisResponse(
+            message=result.get("report"), 
+            dados=result.get("raw_data"),
+            sentimento=result.get("raw_sentiment"),
+            status="success"
         )
-        
-        # --- 4. Retorna os dados validados pelo Pydantic ---
-        return AnalysisResponse(**result_data)
 
     except Exception as e:
-        error_message = str(e)
-        print(f"--- 🛑 ERRO CRÍTICO NO main.py 🛑 ---")
-        print(f"Erro: {error_message}")
         traceback.print_exc()
+        error_msg = str(e).lower()
         
-        if "rate_limit" in error_message.lower() or "quota" in error_message.lower():
-             raise HTTPException(status_code=429, detail={"message": "API do Google atingiu o limite de taxa (quota). Aguarde 60 segundos.", "wait_seconds": 60})
+        if "429" in error_msg or "quota" in error_msg:
+             raise HTTPException(status_code=429, detail={"message": "Cota da IA excedida. Tente em 1 minuto."})
         
-        raise HTTPException(status_code=500, detail=f"ERRO INTERNO NO PYTHON: {error_message}")
+        raise HTTPException(status_code=500, detail={"message": f"Erro interno: {str(e)}"})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
