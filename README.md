@@ -95,32 +95,44 @@ O "cérebro" é composto por três personas técnicas:
 ### 1\. Configuração Inicial
 
 ```bash
+# Clone o repositório
 git clone [https://github.com/seu-usuario/analista-financeiro-ia.git](https://github.com/seu-usuario/analista-financeiro-ia.git)
 cd analista-financeiro-ia
+
+# Crie o arquivo de ambiente
 cp .env.example .env
 ```
 
-**Configure no .env:** `GOOGLE_API_KEY` e `SERPER_API_KEY`.
+**Atenção:** No arquivo `.env`, configure as chaves: `GOOGLE_API_KEY` e `SERPER_API_KEY`.
 
 ### 2\. Build e Deploy (Docker)
+
+Este comando sobe os containers `app`, `python`, `nginx` e `db`.
 
 ```bash
 docker-compose up -d --build
 ```
 
-### 3\. Instalação de Dependências
+### 3\. Instalação e Configuração (Dentro do Container)
+
+Execute os comandos abaixo para instalar dependências e **gerar a chave de criptografia** (Obrigatório):
 
 ```bash
-# Instalar dependências do Laravel e Vue
-docker-compose exec laravel_app composer install
-docker-compose exec laravel_app npm install
-docker-compose exec laravel_app npm run build
+# 1. Instalar dependências do PHP
+docker-compose exec app composer install
 
-# Criar tabelas no banco
-docker-compose exec laravel_app php artisan migrate
+# 2. Gerar a chave da aplicação (Essencial para o Laravel rodar)
+docker-compose exec app php artisan key:generate
+
+# 3. Instalar dependências do Frontend (Vue/Tailwind)
+docker-compose exec app npm install
+docker-compose exec app npm run build
+
+# 4. Criar as tabelas no banco de dados
+docker-compose exec app php artisan migrate
 ```
 
 ### 4\. Acesso
 
-  * **Aplicação:** [http://localhost:8000](https://www.google.com/search?q=http://localhost:8000)
-  * **API Docs:** [http://localhost:8001/docs](https://www.google.com/search?q=http://localhost:8001/docs)
+  * **Aplicação Principal:** [http://localhost:8000](https://www.google.com/search?q=http://localhost:8000)
+  * **API Docs (Swagger):** [http://localhost:8001/docs](https://www.google.com/search?q=http://localhost:8001/docs)
