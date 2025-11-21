@@ -63,35 +63,54 @@ O Laravel envia requisições HTTP para o container Python:
 $response = Http::timeout(300)->post('http://python:8000/analyze-stock', [
     'symbol' => $ticker // Ex: 'NVDA'
 ]);
+````
 
-🤖 O Time de Agentes (CrewAI)
+-----
+
+## 🤖 O Time de Agentes (CrewAI)
+
 O "cérebro" é composto por três personas técnicas:
- * 🕵️‍♀️ Júlia (Lead Data Analyst): Focada em Hard Data. Busca P/L, ROE, Cotação e Dividendos no Google.
- * 🧠 Pedro (Sentiment Specialist): Focado em Behavioral Finance. Lê notícias e define se o mercado está com "Medo" ou "Ganância".
- * ✍️ Key (Financial Editor): Editor-Chefe. Recebe os dados dos outros dois e escreve o artigo final em Markdown, já sugerindo a recomendação (Compra/Venda).
 
-🚀 Tech Stack
+1.  **🕵️‍♀️ Júlia (Lead Data Analyst):** Focada em *Hard Data*. Busca P/L, ROE, Cotação e Dividendos no Google.
+2.  **🧠 Pedro (Sentiment Specialist):** Focado em *Behavioral Finance*. Lê notícias e define se o mercado está com "Medo" ou "Ganância".
+3.  **✍️ Key (Financial Editor):** Editor-Chefe. Recebe os dados dos outros dois e escreve o artigo final em Markdown, já sugerindo a recomendação (Compra/Venda).
+
+-----
+
+## 🚀 Tech Stack
 
 | Categoria | Tecnologia | Detalhe Técnico |
-|---|---|---|
-| Backend Core | Laravel 10 | PHP 8.2+, Eloquent, Http Client |
-| Frontend | Vue.js 3 | Composition API, Inertia.js |
-| Estilização | TailwindCSS | Design responsivo e Tipografia |
-| Microsserviço IA | Python 3.11 | FastAPI, Uvicorn |
-| IA Engine | Google Gemini | Modelo gemini-flash via LiteLLM |
-| Infraestrutura | Docker Compose | Redes internas, Volumes e Builds |
+| :--- | :--- | :--- |
+| **Backend Core** | **Laravel 10** | PHP 8.2+, Eloquent, Http Client |
+| **Frontend** | **Vue.js 3** | Composition API, Inertia.js |
+| **Estilização** | **TailwindCSS** | Design responsivo e Tipografia |
+| **Microsserviço IA** | **Python 3.11** | FastAPI, Uvicorn |
+| **IA Engine** | **Google Gemini** | Modelo `gemini-flash` via LiteLLM |
+| **Infraestrutura** | **Docker Compose** | Redes internas, Volumes e Builds |
 
-⚙️ Instalação e Execução
-1. Configuração Inicial
+-----
+
+## ⚙️ Instalação e Execução
+
+### 1\. Configuração Inicial
+
+```bash
 git clone [https://github.com/seu-usuario/analista-financeiro-ia.git](https://github.com/seu-usuario/analista-financeiro-ia.git)
 cd analista-financeiro-ia
 cp .env.example .env
+```
 
-Configure no .env: GOOGLE_API_KEY e SERPER_API_KEY.
-2. Build e Deploy (Docker)
+**Configure no .env:** `GOOGLE_API_KEY` e `SERPER_API_KEY`.
+
+### 2\. Build e Deploy (Docker)
+
+```bash
 docker-compose up -d --build
+```
 
-3. Instalação de Dependências
+### 3\. Instalação de Dependências
+
+```bash
 # Instalar dependências do Laravel e Vue
 docker-compose exec laravel_app composer install
 docker-compose exec laravel_app npm install
@@ -99,9 +118,9 @@ docker-compose exec laravel_app npm run build
 
 # Criar tabelas no banco
 docker-compose exec laravel_app php artisan migrate
+```
 
-4. Acesso
- * Aplicação: http://localhost:8000
- * API Docs: http://localhost:8001/docs
+### 4\. Acesso
 
-
+  * **Aplicação:** [http://localhost:8000](https://www.google.com/search?q=http://localhost:8000)
+  * **API Docs:** [http://localhost:8001/docs](https://www.google.com/search?q=http://localhost:8001/docs)
